@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HangulMaster - Fixed</title>
+    <title>HangulMaster - 6 Levels</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
 
@@ -35,19 +35,29 @@
         h1 { font-size: 3rem; color: white; margin: 0; text-shadow: 2px 2px 0 rgba(0,0,0,0.1); }
         h2 { color: white; font-size: 1.2rem; margin-bottom: 20px; opacity: 0.9; }
 
-        .menu-container { height: 60vh; overflow-y: auto; padding: 10px; }
+        /* Modified menu container to handle 6 buttons better */
+        .menu-container { 
+            max-height: 70vh; 
+            overflow-y: auto; 
+            padding: 10px; 
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        
         .menu-btn {
-            width: 100%; padding: 15px; margin: 10px 0;
+            width: 100%; padding: 12px;
             background: white; border: 4px solid white; border-radius: 25px;
-            color: var(--text-color); font-family: var(--font-main); font-size: 1.4rem;
+            color: var(--text-color); font-family: var(--font-main); font-size: 1.3rem;
             cursor: pointer; display: flex; align-items: center;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: 0.2s;
+            margin: 0;
         }
         .menu-btn:hover { transform: translateY(-3px); border-color: var(--accent-color); }
         .icon-circle {
-            background: #ff9a9e; width: 45px; height: 45px; border-radius: 50%;
+            background: #ff9a9e; width: 40px; height: 40px; border-radius: 50%;
             display: flex; justify-content: center; align-items: center;
-            margin-right: 15px; color: white; font-size: 1.2rem;
+            margin-right: 15px; color: white; font-size: 1.1rem; flex-shrink: 0;
         }
 
         .card {
@@ -58,18 +68,18 @@
             position: relative;
         }
 
-        .word-area { font-size: 5rem; margin: 20px 0; color: var(--accent-color); }
+        .word-area { font-size: 4.5rem; margin: 20px 0; color: var(--accent-color); }
 
         .play-btn {
-            width: 80px; height: 80px; border-radius: 50%; border: none;
+            width: 70px; height: 70px; border-radius: 50%; border: none;
             background: #f8f9fa; cursor: pointer;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             display: flex; justify-content: center; align-items: center;
         }
         .play-btn:active { transform: scale(0.9); }
-        .play-btn svg { width: 35px; height: 35px; fill: var(--accent-color); }
+        .play-btn svg { width: 30px; height: 30px; fill: var(--accent-color); }
 
-        .trans-area { font-size: 1.5rem; color: #888; visibility: hidden; min-height: 3rem; }
+        .trans-area { font-size: 1.5rem; color: #888; visibility: hidden; min-height: 3.5rem; }
         .trans-area.visible { visibility: visible; }
         .sub-text { font-size: 1rem; color: #aaa; display:block; }
 
@@ -80,7 +90,6 @@
 
         .stats-bar { display: flex; justify-content: space-between; color: white; font-size: 1.2rem; margin-bottom: 10px; }
         
-        /* Debug Box */
         #debug-log { 
             position: fixed; bottom: 0; left: 0; right: 0; 
             background: #333; color: #0f0; padding: 5px; 
@@ -99,16 +108,22 @@
         
         <div class="menu-container">
             <button class="menu-btn" id="btn-l1">
-                <div class="icon-circle">ㄱ</div> Level 1: Letters
+                <div class="icon-circle">ㄱ</div> Level 1: Einfache Buchstaben
             </button>
             <button class="menu-btn" id="btn-l2">
-                <div class="icon-circle">가</div> Level 2: Syllables
+                <div class="icon-circle">가</div> Level 2: Einfache Kombis
             </button>
             <button class="menu-btn" id="btn-l3">
                 <div class="icon-circle">달</div> Level 3: Batchim
             </button>
             <button class="menu-btn" id="btn-l4">
-                <div class="icon-circle">말</div> Level 4: Words
+                <div class="icon-circle">말</div> Level 4: Komplexe Buchstaben
+            </button>
+            <button class="menu-btn" id="btn-l5">
+                <div class="icon-circle">학교</div> Level 5: Einfache Woerter
+            </button>
+            <button class="menu-btn" id="btn-l6">
+                <div class="icon-circle">가다</div> Level 6: Schwierige Woerter
             </button>
         </div>
     </div>
@@ -149,29 +164,132 @@
 </div>
 
 <script>
-    // --- 1. ERROR TRAPPING (Shows errors on screen) ---
     window.onerror = function(msg, url, line) {
         const d = document.getElementById('debug-log');
         d.style.display = 'block';
         d.innerHTML += "<br>ERROR: " + msg + " (Line " + line + ")";
-        alert("Code Error: " + msg);
     };
 
-    // --- 2. DATASETS (Cleaned) ---
-    const dataL1=[{ko:"ㄱ",audio:"그",en:"g",rom:"Gun"},{ko:"ㄴ",audio:"느",en:"n",rom:"Nase"},{ko:"ㄷ",audio:"드",en:"d",rom:"sieht aus wie D"},{ko:"ㄹ",audio:"르",en:"r",rom:"zusammengerollt, R"},{ko:"ㅁ",audio:"므",en:"m",rom:"Mund"},{ko:"ㅂ",audio:"브",en:"b",rom:"Burg"},{ko:"ㅏ",en:"a",rom:"ah"},{ko:"ㅓ",en:"eo",rom:"er wie Hammer"},{ko:"ㅗ",en:"o",rom:"oben"},{ko:"ㅜ",en:"u",rom:"u wie unten"},{ko:"ㅡ",en:"eu",rom:"e wie Zeile"},{ko:"ㅣ",en:"i",rom:"I"}];
+    // --- DATASETS ---
+    const dataL1=[{ko:"그",en:"ge",rom:"Gun"},{ko:"느",audio:"느",en:"n",rom:"Nase"},{ko:"디",en:"di",rom:"sieht aus wie D"},{ko:"르",en:"r",rom:"zusammengerollt, R"},{ko:"므", en: "me", rom:"Mund"},{ko:"비",en:"bi",rom:"Burg"},{ko:"ㅏ",en:"a",rom:"ah"},{ko:"ㅓ",en:"eo",rom:"er wie Hammer"},{ko:"ㅗ",en:"o",rom:"oben"},{ko:"ㅜ",en:"u",rom:"u wie unten"},{ko:"ㅡ",en:"eu",rom:"e wie Zeile"},{ko:"ㅣ",en:"i",rom:"I"}];
     
-    const dataL2=[{ko:"가",en:"ga"},{ko:"나",en:"na"},{ko:"다",en:"da"},{ko:"라",en:"ra"},{ko:"마",en:"ma"},{ko:"바",en:"ba"},{ko:"거",en:"ger"},{ko:"너",en:"ner"},{ko:"더",en:"der"},{ko:"러",en:"rer"},{ko:"머",en:"mer"},{ko:"버",en:"ber"},{ko:"구",en:"gu"},{ko:"누",en:"nu"},{ko:"두",en:"du"},{ko:"루",en:"ru"},{ko:"무",en:"mu"},{ko:"부",en:"bu"},{ko:"고",en:"go"},{ko:"노",en:"no"},{ko:"도",en:"do"},{ko:"로",en:"ro"},{ko:"모",en:"mo"},{ko:"보",en:"bo"},{ko:"기",en:"gi"},{ko:"니",en:"ni"},{ko:"디",en:"di"},{ko:"미",en:"mi"}, {ko:"리",en:"ri"},{ko:"비",en:"bi"},{ko:"그",en:"ge"},{ko:"느",en:"ne"},{ko:"드",en:"de"},{ko:"르",en:"re"},{ko:"므",en:"me"},{ko:"브",en:"be"}];
+    const dataL2=[{ko:"가",en:"ga"},{ko:"나",en:"na"},{ko:"다",en:"da"},{ko:"라",en:"ra"},{ko:"마",en:"ma"},{ko:"바",en:"ba"},{ko:"거",en:"geo"},{ko:"너",en:"neo"},{ko:"더",en:"deo"},{ko:"러",en:"reo"},{ko:"머",en:"meo"},{ko:"버",en:"beo"},{ko:"구",en:"gu"},{ko:"누",en:"nu"},{ko:"두",en:"du"},{ko:"루",en:"ru"},{ko:"무",en:"mu"},{ko:"부",en:"bu"},{ko:"고",en:"go"},{ko:"노",en:"no"},{ko:"도",en:"do"},{ko:"로",en:"ro"},{ko:"모",en:"mo"},{ko:"보",en:"bo"},{ko:"기",en:"gi"},{ko:"니",en:"ni"},{ko:"디",en:"di"},{ko:"미",en:"mi"},{ko:"리",en:"ri"},{ko:"비",en:"bi"}];
     
-    const dataL3=[{ko:"간",en:"gan"},{ko:"난",en:"nan"},{ko:"단",en:"dan"},{ko:"란",en:"ran"},{ko:"만",en:"man"},{ko:"반",en:"ban"},{ko:"산",en:"san"},{ko:"안",en:"an"},{ko:"잔",en:"jan"},{ko:"찬",en:"chan"},{ko:"감",en:"gam"},{ko:"남",en:"nam"},{ko:"담",en:"dam"},{ko:"람",en:"ram"},{ko:"맘",en:"mam"},{ko:"밤",en:"bam"},{ko:"삼",en:"sam"},{ko:"암",en:"am"},{ko:"잠",en:"jam"},{ko:"강",en:"gang"},{ko:"방",en:"bang"},{ko:"상",en:"sang"},{ko:"장",en:"jang"},{ko:"항",en:"hang"},{ko:"공",en:"gong"},{ko:"동",en:"dong"},{ko:"봉",en:"bong"},{ko:"송",en:"song"},{ko:"종",en:"jong"}];
+    const dataL3=[
+  {"ko":"각","en":"gak"},{"ko":"간","en":"gan"},{"ko":"갇","en":"gat"},{"ko":"갈","en":"gal"},{"ko":"감","en":"gam"},{"ko":"갑","en":"gap"},{"ko":"갓","en":"gat"},{"ko":"강","en":"gang"},{"ko":"갖","en":"gat"},{"ko":"같","en":"gat"},{"ko":"갚","en":"gap"},
+  {"ko":"낙","en":"nak"},{"ko":"난","en":"nan"},{"ko":"날","en":"nal"},{"ko":"남","en":"nam"},{"ko":"납","en":"nap"},{"ko":"낫","en":"nat"},{"ko":"낮","en":"nat"},{"ko":"낯","en":"nat"},
+  {"ko":"닥","en":"dak"},{"ko":"단","en":"dan"},{"ko":"달","en":"dal"},{"ko":"담","en":"dam"},{"ko":"답","en":"dap"},{"ko":"당","en":"dang"},
+  {"ko":"막","en":"mak"},{"ko":"만","en":"man"},{"ko":"말","en":"mal"},{"ko":"맘","en":"mam"},{"ko":"맛","en":"mat"},{"ko":"망","en":"mang"},{"ko":"맞","en":"mat"},{"ko":"맡","en":"mat"},
+  {"ko":"박","en":"bak"},{"ko":"반","en":"ban"},{"ko":"발","en":"bal"},{"ko":"밤","en":"bam"},{"ko":"밥","en":"bap"},{"ko":"방","en":"bang"},{"ko":"밭","en":"bat"},
+  {"ko":"걱","en":"ge(r)k"},{"ko":"건","en":"ge(r)n"},{"ko":"걸","en":"ge(r)l"},{"ko":"검","en":"ge(r)m"},{"ko":"겁","en":"ge(r)p"},{"ko":"것","en":"ge(r)t"},{"ko":"겉","en":"ge(r)t"},
+  {"ko":"넘","en":"nerm"},
+  {"ko":"덕","en":"derk"},{"ko":"덜","en":"derl"},{"ko":"덮","en":"derp"},
+  {"ko":"먹","en":"merk"},
+  {"ko":"벗","en":"bert"},{"ko":"벚","en":"bert"},
+  {"ko":"선","en":"sern"},{"ko":"설","en":"serl"},{"ko":"섬","en":"seom"},{"ko":"성","en":"se(r)ng"},
+  {"ko":"적","en":"jerk"},{"ko":"전","en":"jern"},{"ko":"절","en":"jerl"},{"ko":"점","en":"jerm"},{"ko":"접","en":"jerp"},{"ko":"정","en":"jerng"},{"ko":"젖","en":"jert"},
+  {"ko":"철","en":"cherl"},{"ko":"첫","en":"chert"},{"ko":"청","en":"cherng"},
+  {"ko":"곧","en":"got"},{"ko":"골","en":"gol"},{"ko":"곰","en":"gom"},{"ko":"곳","en":"got"},{"ko":"공","en":"gong"},
+  {"ko":"돌","en":"dol"},{"ko":"동","en":"dong"},{"ko":"돛","en":"dot"},
+  {"ko":"목","en":"mok"},{"ko":"몸","en":"mom"},{"ko":"못","en":"mot"},
+  {"ko":"복","en":"bok"},{"ko":"본","en":"bon"},{"ko":"봄","en":"bom"},
+  {"ko":"손","en":"son"},{"ko":"솥","en":"sot"},
+  {"ko":"옥","en":"ok"},{"ko":"온","en":"on"},{"ko":"옷","en":"ot"},{"ko":"옻","en":"ot"},
+  {"ko":"국","en":"guk"},{"ko":"굳","en":"gut"},{"ko":"굴","en":"gul"},
+  {"ko":"눈","en":"nun"},
+  {"ko":"문","en":"mun"},{"ko":"물","en":"mul"},
+  {"ko":"불","en":"bul"},
+  {"ko":"술","en":"sul"},{"ko":"숨","en":"sum"},{"ko":"숯","en":"sut"},
+  {"ko":"풀","en":"pul"},
+  {"ko":"극","en":"gek"},{"ko":"근","en":"gen"},{"ko":"글","en":"gel"},{"ko":"금","en":"gem"},{"ko":"급","en":"gep"},
+  {"ko":"늘","en":"nel"},{"ko":"늦","en":"net"},
+  {"ko":"득","en":"dek"},{"ko":"등","en":"deng"},
+  {"ko":"슬","en":"sel"},
+  {"ko":"음","en":"em"},{"ko":"응","en":"eng"},
+  {"ko":"길","en":"gil"},{"ko":"깊","en":"gip"},
+  {"ko":"믿","en":"mit"},{"ko":"밑","en":"mit"},
+  {"ko":"빗","en":"bit"},{"ko":"빛","en":"bit"},{"ko":"빚","en":"bit"},
+  {"ko":"신","en":"sin"},{"ko":"실","en":"sil"},
+  {"ko":"입","en":"ip"},{"ko":"잎","en":"ip"},
+  {"ko":"집","en":"jip"},{"ko":"짚","en":"jip"}
+];
     
-    const dataL4=[{ko:"안녕하세요",en:"Hello",rom:"annyeong-haseyo"},{ko:"감사합니다",en:"Thank you",rom:"gamsa-hamnida"},{ko:"네",en:"Yes",rom:"ne"},{ko:"아니요",en:"No",rom:"aniyo"},{ko:"사람",en:"Person",rom:"saram"},{ko:"남자",en:"Man",rom:"namja"},{ko:"여자",en:"Woman",rom:"yeoja"},{ko:"친구",en:"Friend",rom:"chingu"},{ko:"학교",en:"School",rom:"hakgyo"},{ko:"집",en:"House",rom:"jip"},{ko:"물",en:"Water",rom:"mul"},{ko:"밥",en:"Rice/Meal",rom:"bap"},{ko:"빵",en:"Bread",rom:"ppang"},{ko:"오늘",en:"Today",rom:"oneul"},{ko:"내일",en:"Tomorrow",rom:"naeil"},{ko:"사랑",en:"Love",rom:"sarang"}];
+    const dataL4=[
+  {"ko":"약","en":"yak"},{"ko":"양","en":"yang"},{"ko":"얕","en":"yat"},{"ko":"얗","en":"yah"},
+  {"ko":"역","en":"yeok"},{"ko":"연","en":"yeon"},{"ko":"열","en":"yeol"},{"ko":"염","en":"yeom"},{"ko":"엽","en":"yeop"},{"ko":"엿","en":"yeot"},{"ko":"영","en":"yeong"},{"ko":"벽","en":"byeok"},{"ko":"변","en":"byeon"},{"ko":"별","en":"byeol"},{"ko":"병","en":"byeong"},{"ko":"녁","en":"nyeok"},{"ko":"편","en":"pyeon"},{"ko":"평","en":"pyeong"},{"ko":"현","en":"hyeon"},{"ko":"곁","en":"gyeot"},{"ko":"볕","en":"byeot"},{"ko":"면","en":"myeon"},{"ko":"견","en":"gyeon"},{"ko":"션","en":"syeon"},{"ko":"켠","en":"kyeon"},
+  {"ko":"욕","en":"yok"},{"ko":"용","en":"yong"},{"ko":"숍","en":"syop"},
+  {"ko":"육","en":"yuk"},{"ko":"윤","en":"yun"},{"ko":"율","en":"yul"},{"ko":"융","en":"yung"},{"ko":"귤","en":"gyul"},{"ko":"늄","en":"nyum"},{"ko":"슛","en":"syut"},
+  {"ko":"객","en":"gaek"},{"ko":"갠","en":"gaen"},{"ko":"갤","en":"gael"},{"ko":"갱","en":"gaeng"},{"ko":"냉","en":"naeng"},{"ko":"댁","en":"daek"},{"ko":"랙","en":"raek"},{"ko":"맥","en":"maek"},{"ko":"백","en":"baek"},{"ko":"뱀","en":"baem"},{"ko":"뱉","en":"baet"},{"ko":"색","en":"saek"},{"ko":"샘","en":"saem"},{"ko":"샛","en":"saet"},{"ko":"액","en":"aek"},{"ko":"앱","en":"aep"},{"ko":"쟁","en":"jaeng"},{"ko":"책","en":"chaek"},{"ko":"택","en":"taek"},{"ko":"팩","en":"paek"},{"ko":"핵","en":"haek"},{"ko":"햇","en":"haet"},
+  {"ko":"넥","en":"nek"},{"ko":"넷","en":"net"},{"ko":"덱","en":"dek"},{"ko":"렙","en":"rep"},{"ko":"벨","en":"bel"},{"ko":"셋","en":"set"},{"ko":"센","en":"sen"},{"ko":"텐","en":"ten"},{"ko":"펜","en":"pen"},{"ko":"헬","en":"hel"},{"ko":"멧","en":"met"},
+  {"ko":"괸","en":"goen"},{"ko":"됫","en":"doet"},{"ko":"쇤","en":"soen"},{"ko":"쇳","en":"soet"},{"ko":"왼","en":"oen"},{"ko":"죌","en":"joel"},{"ko":"획","en":"hoek"},
+  {"ko":"곽","en":"gwak"},{"ko":"관","en":"gwan"},{"ko":"괄","en":"gwal"},{"ko":"광","en":"gwang"},{"ko":"솩","en":"swak"},{"ko":"완","en":"wan"},{"ko":"왈","en":"wal"},{"ko":"왕","en":"wang"},{"ko":"좍","en":"jwak"},{"ko":"쾅","en":"kwang"},{"ko":"확","en":"hwak"},{"ko":"환","en":"hwan"},{"ko":"활","en":"hwal"},{"ko":"황","en":"hwang"},
+  {"ko":"권","en":"gwon"},{"ko":"궐","en":"gwol"},{"ko":"뭔","en":"mwon"},{"ko":"원","en":"won"},{"ko":"월","en":"wol"},{"ko":"훤","en":"hwon"},{"ko":"훨","en":"hwol"},
+  {"ko":"퀸","en":"kwin"},{"ko":"뉜","en":"nwin"},{"ko":"쉰","en":"swin"},{"ko":"쉴","en":"swil"},{"ko":"윈","en":"win"},{"ko":"쥔","en":"jwin"},{"ko":"휜","en":"hwin"},{"ko":"휠","en":"hwil"},
+  {"ko":"흰","en":"huin"}
+];
 
-    // --- 3. STATE ---
+    const dataL5 = [
+  {"ko":"공","en":"gong"},{"ko":"개","en":"gae"},{"ko":"길","en":"gil"},{"ko":"국","en":"guk"},
+  {"ko":"꿈","en":"kkum"},{"ko":"끝","en":"kkeut"},{"ko":"꽃","en":"kkot"},{"ko":"끈","en":"kkeun"},{"ko":"꾀","en":"kkoe"},{"ko":"껌","en":"kkeom"},{"ko":"꿀","en":"kkul"},
+  {"ko":"코","en":"ko"},{"ko":"칼","en":"kal"},{"ko":"콩","en":"kong"},{"ko":"컵","en":"keop"},{"ko":"키","en":"ki"},
+  {"ko":"달","en":"dal"},{"ko":"돈","en":"don"},{"ko":"돌","en":"dol"},{"ko":"답","en":"dap"},
+  {"ko":"땅","en":"ttang"},{"ko":"떡","en":"tteok"},{"ko":"똥","en":"ttong"},{"ko":"띠","en":"tti"},{"ko":"뜰","en":"tteul"},
+  {"ko":"탈","en":"tal"},{"ko":"털","en":"teol"},{"ko":"턱","en":"teok"},{"ko":"틈","en":"teum"},{"ko":"토","en":"to"},{"ko":"팀","en":"tim"},{"ko":"팁","en":"tip"},
+  {"ko":"밤","en":"bam"},{"ko":"발","en":"bal"},{"ko":"방","en":"bang"},{"ko":"별","en":"byeol"},{"ko":"비","en":"bi"},
+  {"ko":"뼈","en":"ppyeo"},{"ko":"뿔","en":"ppul"},{"ko":"빵","en":"ppang"},{"ko":"뺨","en":"ppyam"},
+  {"ko":"파","en":"pa"},{"ko":"팔","en":"pal"},{"ko":"풀","en":"pul"},{"ko":"피","en":"pi"},{"ko":"품","en":"pum"},
+  {"ko":"집","en":"jip"},{"ko":"잠","en":"jam"},{"ko":"잔","en":"jan"},{"ko":"짐","en":"jim"},{"ko":"줄","en":"jul"},
+  {"ko":"찜","en":"jjim"},{"ko":"짝","en":"jjak"},{"ko":"쪽","en":"jjok"},{"ko":"짬","en":"jjam"},
+  {"ko":"차","en":"cha"},{"ko":"책","en":"chaek"},{"ko":"총","en":"chong"},{"ko":"층","en":"cheung"},{"ko":"춤","en":"chum"},
+  {"ko":"산","en":"san"},{"ko":"손","en":"son"},{"ko":"술","en":"sul"},{"ko":"섬","en":"seom"},{"ko":"소","en":"so"},
+  {"ko":"쌀","en":"ssal"},{"ko":"씨","en":"ssi"},{"ko":"쑥","en":"ssuk"},{"ko":"싹","en":"ssak"},{"ko":"쌍","en":"ssang"},{"ko":"쉿","en":"swit"}
+];
+
+    const dataL6 = [
+  // --- EASY (2 Syllables) ---
+  {"ko":"우유","en":"uyu"},{"ko":"모자","en":"moja"},{"ko":"오이","en":"oi"},{"ko":"나비","en":"nabi"},
+  {"ko":"구두","en":"gudu"},{"ko":"기차","en":"gicha"},{"ko":"포도","en":"podo"},{"ko":"치마","en":"chima"},
+  {"ko":"바지","en":"baji"},{"ko":"지도","en":"jido"},{"ko":"휴지","en":"hyuji"},{"ko":"요리","en":"yori"},
+  {"ko":"커피","en":"keopi"},{"ko":"카드","en":"kadeu"},{"ko":"코트","en":"koteu"},{"ko":"피자","en":"pija"},
+  {"ko":"가수","en":"gasu"},{"ko":"아기","en":"agi"},{"ko":"나무","en":"namu"},{"ko":"다리","en":"dari"},
+
+  // --- MEDIUM (3 Syllables / Basic Batchim) ---
+  {"ko":"바나나","en":"banana"},{"ko":"카메라","en":"kamera"},{"ko":"라디오","en":"radio"},{"ko":"토마토","en":"tomato"},
+  {"ko":"어머니","en":"eomeoni"},{"ko":"아버지","en":"abeoji"},{"ko":"선생님","en":"seonsaengnim"},{"ko":"학생증","en":"haksaengjeung"},
+  {"ko":"도서관","en":"doseogwan"},{"ko":"화장실","en":"hwajangsil"},{"ko":"비행기","en":"bihaenggi"},{"ko":"자동차","en":"jadongcha"},
+  {"ko":"대학교","en":"daehakgyo"},{"ko":"박물관","en":"bangmulgwan"},{"ko":"편의점","en":"pyenuijeom"},{"ko":"우체국","en":"ucheguk"},
+  {"ko":"정류장","en":"jeongnyujang"},{"ko":"일요일","en":"iryoil"},{"ko":"월요일","en":"woryoil"},{"ko":"한국어","en":"hangugeo"},
+  {"ko":"컴퓨터","en":"keompyuteo"},{"ko":"핸드폰","en":"haendeupon"},{"ko":"냉장고","en":"naengjanggo"},{"ko":"안경점","en":"angyeongjeom"},
+  {"ko":"운동화","en":"undonghwa"},{"ko":"지하철","en":"jihacheol"},{"ko":"백화점","en":"baekhwajeom"},{"ko":"영화관","en":"yeonghwagwan"},
+  {"ko":"수영장","en":"suyeongjang"},{"ko":"식당방","en":"sikdangbang"},
+
+  // --- HARD (Complex Vowels & Double Batchim) ---
+  {"ko":"결혼식","en":"gyeolhonsik"},{"ko":"환경보호","en":"hwangyeongboho"},{"ko":"자기소개","en":"jagisogae"},{"ko":"생년월일","en":"saengnyeonworil"},
+  {"ko":"휴대전화","en":"hyudaeyeonhwa"},{"ko":"전자레인지","en":"jeonjareinji"},{"ko":"텔레비전","en":"tellebijeon"},{"ko":"졸업식장","en":"joreopsikjang"},
+  {"ko":"주차시설","en":"juchasiseol"},{"ko":"공항버스","en":"gonghangbeoseu"},{"ko":"관광안내","en":"gwangwangannae"},{"ko":"신용카드","en":"sinyongkadeu"},
+  {"ko":"안전벨트","en":"anjeonbelteu"},{"ko":"영수증","en":"yeongsujeung"},{"ko":"예약확인","en":"yeyakhwakin"},{"ko":"외국사람","en":"oeguksaram"},
+  {"ko":"유명하다","en":"yumyeonghada"},{"ko":"위험하다","en":"wiheomhada"},{"ko":"친절하다","en":"chinjeolhada"},{"ko":"깨끗하다","en":"kkaekkeuthada"},
+  {"ko":"복잡하다","en":"bokjaphada"},{"ko":"똑똑하다","en":"ttokttokhada"},{"ko":"건강하다","en":"geonganghada"},{"ko":"뚱뚱하다","en":"ttungttunghada"},
+  {"ko":"날씬하다","en":"nalssinhada"},{"ko":"씩씩하다","en":"ssikssikhada"},{"ko":"닭고기","en":"dakgogi"},{"ko":"값비싸다","en":"gapsbissada"},
+  {"ko":"앉으세요","en":"anjeuseyo"},{"ko":"읽으세요","en":"ilgeuseyo"},{"ko":"짧아요","en":"jjalbayo"},{"ko":"밝아요","en":"balgayo"},
+
+  // --- EXPERT (Long Compound Words & Phrases) ---
+  {"ko":"국립중앙박물관","en":"gungnipjungangbangmulgwan"},{"ko":"인천국제공항","en":"incheongukjegonghang"},{"ko":"고속버스터미널","en":"gosokbeoseuteomineol"},{"ko":"경복궁역","en":"gyeongbokgungnyeok"},
+  {"ko":"사랑합니당","en":"saranghamnidang"},{"ko":"감사합니당","en":"gamsahamnidang"},{"ko":"실례합니다","en":"sillyehamnida"},{"ko":"죄송합니다","en":"joesonghamnida"},
+  {"ko":"맛있겠어요","en":"masitgesseoyo"},{"ko":"재미있어요","en":"jaemiisseoyo"},{"ko":"어려웠어요","en":"eoryeowosseoyo"},{"ko":"기다려주세요","en":"gidaryeojuseyo"},
+  {"ko":"도와주세요","en":"dowajuseyo"},{"ko":"알겠습니다","en":"algetseumnida"},{"ko":"모르겠습니다","en":"moreugetseumnida"},{"ko":"반가웠어요","en":"bangawosseoyo"},
+  {"ko":"내일만나요","en":"naeilmannayo"},{"ko":"주말잘보내요","en":"jumaljalbonaeyo"},{"ko":"축하합니다","en":"chukhahamnida"},{"ko":"행복하세요","en":"haengbokhaseyo"},
+  {"ko":"조심하세요","en":"josimhaseyo"},{"ko":"건강하세요","en":"geonganghaseyo"},{"ko":"이름이뭐예요","en":"ireumimwoyeyo"},{"ko":"어디에가요","en":"eodiegayo"},
+  {"ko":"밥먹었어요","en":"bammeogeosseoyo"},{"ko":"지금몇시예요","en":"jigeummyeotsiyeyo"},{"ko":"날씨가좋아요","en":"nalssigajoayo"},{"ko":"기분이좋아요","en":"gibunijoayo"},
+  {"ko":"화이팅하세요","en":"hwaitinghaseyo"},{"ko":"수고하셨습니다","en":"sugohasyeotseumnida"}
+];
+
+    // --- STATE ---
     let queue = [];
     let current = null;
     let score = 0;
 
-    // --- 4. FUNCTIONS ---
+    // --- FUNCTIONS ---
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
@@ -183,9 +301,10 @@
             if(level===1) src = dataL1;
             else if(level===2) src = dataL2;
             else if(level===3) src = dataL3;
-            else src = dataL4;
+            else if(level===4) src = dataL4;
+            else if(level===5) src = dataL5;
+            else if(level===6) src = dataL6;
 
-            // Clone and Shuffle
             queue = JSON.parse(JSON.stringify(src));
             queue.sort(() => Math.random() - 0.5);
 
@@ -223,46 +342,36 @@
         if(success) {
             score += 10;
         } else {
-            queue.splice(2, 0, current); // Put back later
+            queue.splice(2, 0, current); 
         }
         updateUI();
-        setTimeout(nextCard, 500);
+        setTimeout(nextCard, 600);
     }
 
     function playAudio() {
         if(!current) return;
         document.getElementById('trans-disp').classList.add('visible');
-        const txt = current.audio || current.ko;
+        const txt = current.ko;
         const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(txt)}&tl=ko&client=tw-ob`;
         new Audio(url).play().catch(e => {
-            // Fallback
             const u = new SpeechSynthesisUtterance(txt);
             u.lang = 'ko-KR';
             window.speechSynthesis.speak(u);
         });
     }
 
-    // --- 5. EVENT LISTENERS (Safe Binding) ---
-    // We bind events here to ensure HTML is ready
     window.onload = function() {
-        console.log("System Ready");
-        
-        // Bind Menu Buttons
         document.getElementById('btn-l1').onclick = function() { initGame(1); };
         document.getElementById('btn-l2').onclick = function() { initGame(2); };
         document.getElementById('btn-l3').onclick = function() { initGame(3); };
         document.getElementById('btn-l4').onclick = function() { initGame(4); };
+        document.getElementById('btn-l5').onclick = function() { initGame(5); };
+        document.getElementById('btn-l6').onclick = function() { initGame(6); };
 
-        // Bind Game Buttons
         document.getElementById('btn-audio').onclick = playAudio;
         document.getElementById('btn-bad').onclick = function() { processResult(false); };
         document.getElementById('btn-good').onclick = function() { processResult(true); };
-        
-        // Alert user of success load
-        // Uncomment the next line if you want a popup confirmation
-        // alert("Game Loaded Successfully!");
     };
-
 </script>
 </body>
 </html>
